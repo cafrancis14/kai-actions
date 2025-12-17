@@ -1,11 +1,14 @@
 import streamlit as st
 import json
+import random
 from datetime import datetime
+import requests
 
 st.set_page_config(page_title="Kai Actions API")
 
-st.write("Kai Actions API is live.")
+st.write("✅ Kai Actions API is live with Google Sheets support.")
 
+# --- Utility functions ---
 def handle_recap(data):
     convo = data.get("conversation", "")
     recap = f"""
@@ -15,7 +18,7 @@ def handle_recap(data):
 
 Quiet question: What feels lighter now?
 """
-    return {"recap": recap}
+    return {"recap": recap.strip()}
 
 def handle_mirror(data):
     msg = data.get("message", "")
@@ -24,27 +27,42 @@ def handle_mirror(data):
 
 def handle_anchor(data):
     anchors = [
-        "Feel your feet. Slow breath in… slow out. Want another?",
+        "Feel your feet on the ground. One slow breath in… one out. Want another?",
         "Notice the air on your skin. That’s real. Would you like one more?",
-        "Let your shoulders drop. You can stop here. Do you want another?"
+        "Let your shoulders drop a little. You can stop here. Do you want another?"
     ]
-    import random
     return {"anchor": random.choice(anchors)}
 
 def handle_save_reflection(data):
     text = data.get("text", "")
     timestamp = datetime.utcnow().isoformat()
+
+    # OPTIONAL: Add your Google Apps Script webhook URL here ↓↓↓
+    GOOGLE_SHEETS_WEBHOOK = "https://YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"
+
+    if GOOGLE_SHEETS_WEBHOOK != "https://YOUR_GOOGLE_APPS_SCRIPT_URL_HERE":
+        try:
+            requests.post(
+                GOOGLE_SHEETS_WEBHOOK,
+                headers={"Content-Type": "application/json"},
+                data=json.dumps({"text": text, "timestamp": timestamp}),
+                timeout=5
+            )
+        except Exception as e:
+            st.error(f"Error sending to Google Sheets: {e}")
+
     return {"message": f"Reflection saved at {timestamp}"}
 
-# Simulate endpoints
-path = st.experimental_get_query_params().get("path", [""])[0]
-body = st.text_area("Paste JSON body here (for testing):")
+# --- Test interface (for manual checks) ---
+st.subheader("Manual API Test")
+path = st.selectbox("Endpoint", ["recap", "mirror", "anchor", "save_reflection"])
+body = st.text_area("Paste JSON body here:")
 
 if st.button("Run"):
     try:
         data = json.loads(body) if body else {}
-    except:
-        st.error("Invalid JSON.")
+    except Exception as e:
+        st.error(f"Invalid JSON: {e}")
         st.stop()
 
     if path == "recap":
@@ -55,5 +73,3 @@ if st.button("Run"):
         st.json(handle_anchor(data))
     elif path == "save_reflection":
         st.json(handle_save_reflection(data))
-    else:
-        st.error("Unknown path.")
