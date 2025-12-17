@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Kai Actions",
+  "name_for_model": "kai_actions",
+  "description_for_human": "Provides Kai's reflection, recap, mirror, and anchor functions.",
+  "description_for_model": "Actions for reflection logging, emotional mirroring, summaries, and grounding exercises.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://kai-actions-ba4fsyk7ebclkdxdhpgpuu.streamlit.app/openapi.yaml"
+  },
+  "logo_url": "https://kai-actions-ba4fsyk7ebclkdxdhpgpuu.streamlit.app/favicon.png",
+  "contact_email": "you@example.com",
+  "legal_info_url": "https://example.com/terms"
+}
