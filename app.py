@@ -1,21 +1,21 @@
 import streamlit as st
 import json
 import random
-from datetime import datetime
 import requests
-import os
-import streamlit as st
+import csv
+from io import StringIO
+from datetime import datetime
 from pathlib import Path
 
-# Serve ai-plugin.json or openapi.yaml directly if requested
-params = st.experimental_get_query_params()
-if "file" in params:
-    filename = params["file"][0]
-    path = Path(__file__).parent / filename
-    if path.exists():
-        with open(path, "r") as f:
-            st.download_button("Download", f, file_name=filename)
-        st.stop()
+# ---- Serve static files for GPT ----
+query_params = st.experimental_get_query_params()
+if "path" in query_params:
+    route = query_params["path"][0]
+    if route in ["openapi.yaml", "ai-plugin.json"]:
+        file_path = Path(__file__).parent / route
+        if file_path.exists():
+            st.markdown(f"```text\n{file_path.read_text()}\n```")
+            st.stop()
 
 st.set_page_config(page_title="Kai Actions API")
 
