@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 # -------------------------------------------------------------
-# Serve plugin and schema files directly when requested
+# Serve plugin and schema files directly
 # -------------------------------------------------------------
 params = st.experimental_get_query_params()
 if "path" in params:
@@ -16,14 +16,13 @@ if "path" in params:
     if target in ["openapi.yaml", "ai-plugin.json"]:
         file_path = Path(__file__).parent / target
         if file_path.exists():
-            # Display file contents as plain text
             st.markdown(f"```text\n{file_path.read_text()}\n```")
         else:
             st.write("❌ File not found.")
         st.stop()
 
 # -------------------------------------------------------------
-# Normal app UI below
+# Normal app UI
 # -------------------------------------------------------------
 st.set_page_config(page_title="Kai Actions API")
 st.title("Kai Actions API")
