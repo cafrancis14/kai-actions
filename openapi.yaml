@@ -3,7 +3,7 @@ info:
   title: Kai Actions API
   version: 1.2.0
   description: >
-    Real, hosted actions for Kai: recap, mirror, anchor, save reflection, get reflections, and export reflections.
+    Hosted actions for Kai: recap, mirror, anchor, save reflection, get reflections, and export reflections.
 servers:
   - url: https://kai-actions-ba4fsyk7ebclkdxdhpgpuu.streamlit.app
 paths:
