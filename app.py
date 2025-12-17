@@ -3,6 +3,19 @@ import json
 import random
 from datetime import datetime
 import requests
+import os
+import streamlit as st
+from pathlib import Path
+
+# Serve ai-plugin.json or openapi.yaml directly if requested
+params = st.experimental_get_query_params()
+if "file" in params:
+    filename = params["file"][0]
+    path = Path(__file__).parent / filename
+    if path.exists():
+        with open(path, "r") as f:
+            st.download_button("Download", f, file_name=filename)
+        st.stop()
 
 st.set_page_config(page_title="Kai Actions API")
 
