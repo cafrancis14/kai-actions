@@ -7,19 +7,29 @@ from io import StringIO
 from datetime import datetime
 from pathlib import Path
 
-# ---- Serve static files for GPT ----
-query_params = st.experimental_get_query_params()
-if "path" in query_params:
-    route = query_params["path"][0]
-    if route in ["openapi.yaml", "ai-plugin.json"]:
-        file_path = Path(__file__).parent / route
+# -------------------------------------------------------------
+# Serve plugin and schema files directly when requested
+# -------------------------------------------------------------
+params = st.experimental_get_query_params()
+if "path" in params:
+    target = params["path"][0]
+    if target in ["openapi.yaml", "ai-plugin.json"]:
+        file_path = Path(__file__).parent / target
         if file_path.exists():
+            # Display file contents as plain text
             st.markdown(f"```text\n{file_path.read_text()}\n```")
-            st.stop()
+        else:
+            st.write("❌ File not found.")
+        st.stop()
 
-# ---- Normal app content ----
+# -------------------------------------------------------------
+# Normal app UI below
+# -------------------------------------------------------------
 st.set_page_config(page_title="Kai Actions API")
-st.write("✅ Kai Actions API is live with Google Sheets support.")
+st.title("Kai Actions API")
+st.caption("✅ Live and connected to Google Sheets.")
+
+# ---------------- Endpoints ----------------
 
 def handle_recap(data):
     convo = data.get("conversation", "")
@@ -48,6 +58,7 @@ def handle_save_reflection(data):
     text = data.get("text", "")
     timestamp = datetime.utcnow().isoformat()
     GOOGLE_SHEETS_WEBHOOK = "https://YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"
+
     if GOOGLE_SHEETS_WEBHOOK != "https://YOUR_GOOGLE_APPS_SCRIPT_URL_HERE":
         try:
             requests.post(
@@ -76,10 +87,12 @@ def handle_export_reflections():
     SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv"
     return {"export_url": SHEET_CSV_URL}
 
-# ---- Simple manual test panel ----
+# -------------------------------------------------------------
+# Manual API Tester
+# -------------------------------------------------------------
 st.subheader("Manual API Test")
-path = st.selectbox(
-    "Endpoint",
+endpoint = st.selectbox(
+    "Choose endpoint",
     ["recap", "mirror", "anchor", "save_reflection", "get_reflections", "export_reflections"]
 )
 body = st.text_area("Paste JSON body here:")
@@ -91,15 +104,15 @@ if st.button("Run"):
         st.error(f"Invalid JSON: {e}")
         st.stop()
 
-    if path == "recap":
+    if endpoint == "recap":
         st.json(handle_recap(data))
-    elif path == "mirror":
+    elif endpoint == "mirror":
         st.json(handle_mirror(data))
-    elif path == "anchor":
+    elif endpoint == "anchor":
         st.json(handle_anchor(data))
-    elif path == "save_reflection":
+    elif endpoint == "save_reflection":
         st.json(handle_save_reflection(data))
-    elif path == "get_reflections":
+    elif endpoint == "get_reflections":
         st.json(handle_get_reflections())
-    elif path == "export_reflections":
+    elif endpoint == "export_reflections":
         st.json(handle_export_reflections())
